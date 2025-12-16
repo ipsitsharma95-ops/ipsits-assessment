@@ -1,14 +1,13 @@
-import {
-	storyblokEditable,
-	StoryblokServerComponent,
-} from '@storyblok/react/rsc';
+import StoryblokLiveStory from './StoryblokLiveStory';
+import { getStoryblokApi } from '@/lib/storyblok';
 
-const Page = ({ blok }) => (
-	<main {...storyblokEditable(blok)}>
-		{blok.body?.map((nestedBlok) => (
-			<StoryblokServerComponent blok={nestedBlok} key={nestedBlok._uid} />
-		))}
-	</main>
-);
+export default async function Page({ params }) {
+	const slug = params?.slug?.join('/') || 'home';
 
-export default Page;
+	const storyblokApi = getStoryblokApi();
+	const { data } = await storyblokApi.get(`cdn/stories/${slug}`, {
+		version: 'draft', // 🔴 REQUIRED for live editing
+	});
+
+	return <StoryblokLiveStory story={data.story} />;
+}
